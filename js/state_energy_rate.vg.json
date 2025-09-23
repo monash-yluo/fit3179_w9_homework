@@ -1,0 +1,55 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "width": 600,
+    "height": 500,
+    "data": {
+        "url": "ne_10m_admin_1_states_provinces.topojson",
+        "format": {
+            "type": "topojson",
+            "feature": "ne_10m_admin_1_states_provinces"
+        }
+    },
+    "transform": [
+        {
+            "lookup": "properties.postal",
+            "from": {
+                "data": {
+                    "url": "../data/energy_state_fy_2023.csv"
+                },
+                "key": "state_code",
+                "fields": [
+                    "renewable_percent",
+                    "state"
+                ]
+            }
+        }
+    ],
+    "projection": {
+        "type": "mercator"
+    },
+    "mark": {
+        "type": "geoshape"
+    },
+    "encoding": {
+        "color": {
+            "field": "renewable_percent",
+            "type": "quantitative",
+            "title": "清洁能源比率 (%)",
+            "scale": {
+                "scheme": "greens"
+            }
+        },
+        "tooltip": [
+            {
+                "field": "state",
+                "type": "nominal",
+                "title": "州"
+            },
+            {
+                "field": "renewable_percent",
+                "type": "quantitative",
+                "title": "清洁能源比率 (%)"
+            }
+        ]
+    }
+}
