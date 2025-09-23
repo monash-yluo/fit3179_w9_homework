@@ -1,0 +1,41 @@
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.vscode/
+.idea/
+.history/
+
+# Node (if used)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Build / output folders
+dist/
+build/
+out/
+.parcel-cache/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Environment files
+.env
+.env.local
+
+# Logs
+*.log
+
+# Database files
+*.sqlite3
+*.db
+
+# Coverage
+.nyc_output/
+.coverage
+coverage/
