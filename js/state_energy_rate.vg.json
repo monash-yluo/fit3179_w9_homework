@@ -49,7 +49,9 @@
                 }
             ],
             "mark": {
-                "type": "geoshape"
+                "type": "geoshape",
+                "stroke": "#444",
+                "strokeWidth": 0.8
             },
             "encoding": {
                 "color": {
@@ -57,7 +59,10 @@
                     "type": "quantitative",
                     "title": "Renewable Energy Percent (%)",
                     "scale": {
-                        "domain": [0, 100],
+                        "domain": [
+                            0,
+                            100
+                        ],
                         "scheme": "greens"
                     },
                     "legend": {
@@ -66,11 +71,18 @@
                     }
                 },
                 "tooltip": [
-                    {"field": "properties.name", "type": "nominal", "title": "State"},
-                    {"field": "renewable_percent", "type": "quantitative", "title": "Renewable Energy Percent (%)"}
+                    {
+                        "field": "properties.name",
+                        "type": "nominal",
+                        "title": "State"
+                    },
+                    {
+                        "field": "renewable_percent",
+                        "type": "quantitative",
+                        "title": "Renewable Energy Percent (%)"
+                    }
                 ]
             }
         }
     ]
-    
 }
