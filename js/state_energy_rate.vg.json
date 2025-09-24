@@ -1,6 +1,6 @@
 {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-    "title": "State Renewable Energy Rates in 2023",
+    "title": "Australia State Renewable Energy Rates in 2023 (Financial Year)",
     "width": 600,
     "height": 500,
     "data": {
@@ -43,9 +43,16 @@
                         "key": "state_code",
                         "fields": [
                             "renewable_percent",
-                            "state"
+                            "state",
+                            "total_generation",
+                            "total_non_renewable",
+                            "total_renewable"
                         ]
                     }
+                },
+                {
+                    "calculate": "datum.renewable_percent == null ? 'N/A' : format(datum.renewable_percent, ',.0f') + ' %'",
+                    "as": "renewable_percent_label"
                 }
             ],
             "mark": {
@@ -77,9 +84,27 @@
                         "title": "State"
                     },
                     {
-                        "field": "renewable_percent",
+                        "field": "renewable_percent_label",
+                        "type": "nominal",
+                        "title": "Renewable Energy Percent"
+                    },
+                    {
+                        "field": "total_renewable",
                         "type": "quantitative",
-                        "title": "Renewable Energy Percent (%)"
+                        "title": "Total Renewable Generation (GWh)",
+                        "format": ",.0f"
+                    },
+                    {
+                        "field": "total_non_renewable",
+                        "type": "quantitative",
+                        "title": "Total Non-Renewable Generation (GWh)",
+                        "format": ",.0f"
+                    },
+                    {
+                        "field": "total_generation",
+                        "type": "quantitative",
+                        "title": "Total Generation (GWh)",
+                        "format": ",.0f"
                     }
                 ]
             }

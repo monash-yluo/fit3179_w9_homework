@@ -1,0 +1,11 @@
+"projection": {
+        "type": "albers", 
+        "parallels": [
+            -37.8031,
+            -16.2272
+        ], 
+        "center": [
+            133.2422,
+            -27.0153
+        ]
+    }

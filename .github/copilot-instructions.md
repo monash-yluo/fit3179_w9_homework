@@ -1,62 +1,41 @@
-## 目标
-为自动化编码代理（Copilot / AI agent）提供一份小而精的指南，使其能快速在本仓库中定位任务、修改 Vega/Lite 可视化并在本地运行或调试。
+## 目的
+为自动化编码代理（AI 助手/Co‑pilot）提供一份小而精的入门说明，帮助快速定位本仓库的关键点、常见改动和本地调试步骤，使得对 Vega/Vega‑Lite 規格的修改能立即运行并通过基本验收。
 
-## 项目大体结构（重要文件）
-- `index.html` — 页面入口，使用 CDN 加载 `vega`, `vega-lite`, `vega-embed`，并把 `js/state_energy_rate.vg.json` 作为 spec 加载到 `#choropleth_map`。
-- `js/state_energy_rate.vg.json` — Vega-Lite 规格文件（主要工作区），包含 topojson lookup、transform 与 encoding（color 使用 `renewable_percent`）。
-- `js/ne_10m_admin_1_states_provinces.topojson` 和 `js/ne_10m_admin_1_states_provinces1.topojson` — 地图形状（已存在于仓库 `js/`）。
-- `data/energy_state_fy_2023.csv` — 与 topojson 做 lookup 的数据源（字段中含 `state_code`, `renewable_percent`, `state`）。
+## 一句概览（大图）
+这是一个基于 Vega‑Lite 的州/省 choropleth 演示：`index.html` 使用 CDN 加载 Vega 家族并通过 `vegaEmbed()` 加载 `js/state_energy_rate.vg.json`，该 JSON 用 topojson 做地理形状并用 CSV 数据做 lookup 来给地物着色（字段：`renewable_percent`）。
 
-## 大图（设计/数据流）
-1. `index.html` 调用 `vegaEmbed('#choropleth_map', 'js/state_energy_rate.vg.json')`。
-2. `state_energy_rate.vg.json` 定义了 topojson 的来源和一个 `lookup` transform：
-   - 从 topojson 的 feature 中读取 `properties.postal`。
-   - 在 CSV（lookup key: `state_code`）中查找并附加字段 `renewable_percent`, `state`。
-3. 使用 `geoshape` 标记和 `color` 编码（字段 `renewable_percent`，配色使用 `greens`）渲染州/省的着色。
+## 关键文件（直接查看）
+- `index.html` — 页面入口与 CDN 引入。查这里先判断是否使用在线 CDN 或已被改为本地库。
+- `js/state_energy_rate.vg.json` — 主要工作区：topojson source、lookup.transform(from CSV)、encoding (color、tooltip 可编辑)。
+- `js/*.topojson` — 地理形状文件（请确认 `feature` 名称与 vg 规格中一致）。
+- `data/energy_state_fy_2023.csv` — lookup 数据源（主要字段：`state_code`, `state`, `renewable_percent`）。
 
-示例（关键字段）：
-- transform lookup: `properties.postal` -> CSV key `state_code`
-- color field: `renewable_percent`（标题为“清洁能源比率 (%)”）
+## 常见、可直接修改的任务（举例）
+- 切换到本地数据：把 `state_energy_rate.vg.json` 中的远程 `data.url` 改为 `js/ne_10m_admin_1_states_provinces.topojson`（topojson）和 `data/energy_state_fy_2023.csv`（CSV）。
+- 添加 tooltip：在 `encoding` 中加 `"tooltip": [{"field":"state","type":"nominal"},{"field":"renewable_percent","type":"quantitative"}]`。
+- 修改配色/断点：编辑 `encoding.color.scale.scheme`（例如 `"greens"`）或将 scale 改为 `threshold`/`quantile` 并设置 `domain`。
+- topojson 注意：`format.feature` 必须与 topojson 文件内部 feature 名称匹配（常见错误点）。
 
-## 立刻可运行（开发者/代理操作步骤）
-说明：直接用 `file://` 打开 `index.html` 往往会触发浏览器的 fetch/CORS 限制，推荐使用本地静态服务器。提供两种常见方式（Windows PowerShell）：
-
-1) 使用 Python 内置简易服务器（推荐）：
+## 本地运行 / 调试（PowerShell）
+（不要用 file:// 打开，浏览器会因 fetch/CORS 失败）
+推荐：在仓库根目录运行 Python 简单服务器：
 ```powershell
-# Python 3
-py -3 -m http.server 8000
-# 或
-python -m http.server 8000
+py -3 -m http.server 8000; # 或 python -m http.server 8000
 ```
-然后在浏览器打开 `http://localhost:8000/index.html`。
+然后在浏览器打开 `http://localhost:8000/index.html`。打开 DevTools 的 Console 和 Network，检查 `state_energy_rate.vg.json`, topojson, csv 三个请求是否返回 200，并查看 Vega 的 runtime 错误。
 
-2) 使用 VS Code 的 Live Server 扩展：右键 `index.html` → Open with Live Server。
+## 项目约定 / 小规则
+- 小改动（路径、tooltip、色带）直接修改 `js/state_energy_rate.vg.json`。
+- commit message 约定：前缀使用 `vega: `，例如 `vega: use local topojson and csv for offline dev`。
+- 避免更改 `index.html` 的 CDN 版本，除非明确需要脱网或锁定版本；若改动请在 PR 描述中说明原因和版本号。
 
-调试提示：打开浏览器 DevTools 的 Console 和 Network 面板，观察 `state_energy_rate.vg.json`、topojson、CSV 的请求与错误信息；Vega 在运行时也会把错误打印到控制台。
+## 验收（代理在提交前应自动做）
+1. 启动本地服务器并加载页面，无 Console 错误。  
+2. Network 面板中 `state_energy_rate.vg.json`, topojson, csv 返回 200。  
+3. 地图按 `renewable_percent` 着色且（如已加）tooltip 显示 `state` 与 `renewable_percent`。
 
-## 常见修改点与范例（对 AI 非常重要）
-- 若需要在本地使用仓库内的数据，请把 `state_energy_rate.vg.json` 中的远程 `data.url` 替换为相对路径，例如：
-  - topojson: `js/ne_10m_admin_1_states_provinces.topojson`
-  - csv: `data/energy_state_fy_2023.csv`
-- 添加 tooltip：在 `encoding` 中加入 `tooltip` 字段（示例：`{"field":"state","type":"nominal"}` 或 `[{"field":"state"},{"field":"renewable_percent"}]`）。
-- 修改配色或断点：编辑 `encoding.color.scale.scheme` 或将 `type: "quantitative"` 改为 `bin`/`threshold` 并添加 `domain`。
+## 额外说明（供 AI 参考）
+- 本仓库没有构建系统或测试框架；修改后只需做浏览器 smoke test。  
+- 如果需要离线构建或锁定依赖，可在 issue/PR 中提出并说明受影响文件（`index.html` CDN 行，或新增本地 libs 目录）。
 
-示例替换（可直接写入 `js/state_energy_rate.vg.json`）:
-```json
-"data": { "url": "js/ne_10m_admin_1_states_provinces.topojson", "format": { "type": "topojson", "feature": "ne_10m_admin_1_states_provinces" } }
-// 在 lookup.from.data.url 改为 "data/energy_state_fy_2023.csv"
-```
-
-## 集成点、外部依赖与注意事项
-- CDN：`vega`, `vega-lite`, `vega-embed` 通过 CDN 加载（在 `index.html`），若无网络或需固定版本，可改为本地包或锁定 CDN 版本。
-- Remote data URLs：目前 `state_energy_rate.vg.json` 中的示例使用 raw.githubusercontent 的 URL（会跨域），在离线开发或 CI 中应改为仓库内相对路径。
-- TopoJSON `feature` 名称必须匹配 topojson 文件内部的 feature（目前使用 `ne_10m_admin_1_states_provinces`）。修改 topojson 请确认该名称。
-
-## 编辑/提交约定（可被 AI 直接遵循）
-- 小改动（如配色、tooltip、路径替换）：在 `js/state_energy_rate.vg.json` 做原子提交，并在 commit message 中写明“vega: <简述>”（例如 `vega: use local topojson and csv for offline dev`）。
-
-## 质量检查（AI 应执行的小型验收）
-- 启动本地服务器并在浏览器打开 `index.html`，确保地图能加载且不在 Console 报错。
-- 检查 Network 面板，确认 `state_energy_rate.vg.json`、topojson 和 CSV 的请求返回 200。
-
-如果需要，我可以把 `state_energy_rate.vg.json` 的 remote URLs 自动替换为仓库内的相对路径并提交为一个 PR。请告诉我是否要我继续。
+请检查这份指南是否覆盖你的常见工作流，告诉我是否要把示例替换补丁（将远程 URL 替换为相对路径）、或添加一个小的 smoke‑test 脚本/README。 
